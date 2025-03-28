@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin - Gestion des trains</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="bg-gray-100">
+    <div class="container mx-auto px-4 py-8">
+        <h1 class="text-3xl font-bold mb-6 text-sncf">
+            <i class="fas fa-train mr-2"></i>Gestion des trains TER
+        </h1>
+        
+        <div class="bg-white p-6 rounded-lg shadow-md">
+            <h2 class="text-xl font-semibold mb-4">Ajouter un nouveau train</h2>
+            
+            <form id="trainForm" class="space-y-4">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">Numéro de train</label>
+                        <input type="text" id="trainNumber" required
+                            class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-sncf focus:border-sncf">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">Quai</label>
+                        <input type="text" id="platform"
+                            class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-sncf focus:border-sncf">
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">Gare de départ</label>
+                        <input type="text" id="departureStation" required
+                            class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-sncf focus:border-sncf">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">Heure de départ</label>
+                        <input type="time" id="departureTime" required
+                            class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-sncf focus:border-sncf">
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">Gare d'arrivée</label>
+                        <input type="text" id="arrivalStation" required
+                            class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-sncf focus:border-sncf">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">Heure d'arrivée</label>
+                        <input type="time" id="arrivalTime" required
+                            class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-sncf focus:border-sncf">
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Gares desservies</label>
+                    <div id="stopsContainer" class="mt-2 space-y-2">
+                        <div class="flex space-x-2">
+                            <input type="text" class="flex-1 border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-sncf focus:border-sncf">
+                            <button type="button" onclick="removeStop(this)" class="px-3 py-1 bg-red-500 text-white rounded-md">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <button type="button" onclick="addStop()" class="mt-2 text-sm text-sncf hover:text-sncf-dark">
+                        <i class="fas fa-plus mr-1"></i>Ajouter une gare
+                    </button>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Jours de circulation</label>
+                    <div class="mt-2 grid grid-cols-2 md:grid-cols-4 gap-2">
+                        <label class="inline-flex items-center">
+                            <input type="checkbox" name="days" value="1" class="rounded border-gray-300 text-sncf focus:ring-sncf"> Lundi
+                        </label>
+                        <label class="inline-flex items-center">
+                            <input type="checkbox" name="days" value="2" class="rounded border-gray-300 text-sncf focus:ring-sncf"> Mardi
+                        </label>
+                        <label class="inline-flex items-center">
+                            <input type="checkbox" name="days" value="3" class="rounded border-gray-300 text-sncf focus:ring-sncf"> Mercredi
+                        </label>
+                        <label class="inline-flex items-center">
+                            <input type="checkbox" name="days" value="4" class="rounded border-gray-300 text-sncf focus:ring-sncf"> Jeudi
+                        </label>
+                        <label class="inline-flex items-center">
+                            <input type="checkbox" name="days" value="5" class="rounded border-gray-300 text-sncf focus:ring-sncf"> Vendredi
+                        </label>
+                        <label class="inline-flex items-center">
+                            <input type="checkbox" name="days" value="6" class="rounded border-gray-300 text-sncf focus:ring-sncf"> Samedi
+                        </label>
+                        <label class="inline-flex items-center">
+                            <input type="checkbox" name="days" value="0" class="rounded border-gray-300 text-sncf focus:ring-sncf"> Dimanche
+                        </label>
+                    </div>
+                </div>
+
+                <div class="pt-4">
+                    <button type="submit" class="bg-sncf hover:bg-sncf-dark text-white font-bold py-2 px-4 rounded">
+                        Enregistrer le train
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="js/admin.js"></script>
+</body>
+</html>
