@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Statut du train - TER Bourgogne-Franche-Comté</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="bg-gray-100">
+    <div class="container mx-auto px-4 py-8">
+        <div class="flex justify-between items-center mb-6">
+            <h1 class="text-3xl font-bold text-sncf">
+                <i class="fas fa-info-circle mr-2"></i>Statut du train
+            </h1>
+            <a href="index.html" class="bg-sncf hover:bg-sncf-dark text-white font-bold py-2 px-4 rounded">
+                <i class="fas fa-home mr-2"></i>Accueil
+            </a>
+        </div>
+
+        <div class="bg-white p-6 rounded-lg shadow-md mb-6">
+            <div class="flex items-center mb-4">
+                <input type="text" id="trainNumber" placeholder="Numéro de train (ex: TER 87654)" 
+                    class="flex-1 p-2 border rounded-l focus:ring-sncf focus:border-sncf">
+                <button id="searchTrain" class="bg-sncf hover:bg-sncf-dark text-white font-bold py-2 px-4 rounded-r">
+                    <i class="fas fa-search mr-2"></i>Rechercher
+                </button>
+            </div>
+        </div>
+
+        <div id="trainStatus" class="bg-white p-6 rounded-lg shadow-md hidden">
+            <div class="flex items-center mb-4">
+                <h2 class="text-2xl font-bold" id="trainNumberHeader"></h2>
+                <span id="statusBadge" class="ml-4 px-3 py-1 rounded-full text-sm font-medium"></span>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                    <h3 class="text-lg font-semibold mb-2">Informations</h3>
+                    <div class="space-y-2">
+                        <p><span class="font-medium">Départ:</span> <span id="departureInfo"></span></p>
+                        <p><span class="font-medium">Arrivée:</span> <span id="arrivalInfo"></span></p>
+                        <p><span class="font-medium">Quai:</span> <span id="platformInfo"></span></p>
+                    </div>
+                </div>
+
+                <div>
+                    <h3 class="text-lg font-semibold mb-2">Statut</h3>
+                    <div id="statusDetails" class="space-y-2">
+                        <!-- Rempli dynamiquement -->
+                    </div>
+                </div>
+            </div>
+
+            <div class="mt-6" id="reasonSection">
+                <h3 class="text-lg font-semibold mb-2">Motif</h3>
+                <p id="reasonText" class="text-gray-700"></p>
+            </div>
+        </div>
+
+        <div id="notFoundMessage" class="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 hidden" role="alert">
+            <p>Le numéro de train est introuvable. Veuillez vérifier le numéro saisi.</p>
+        </div>
+    </div>
+
+    <script src="js/train_status.js"></script>
+</body>
+</html>
