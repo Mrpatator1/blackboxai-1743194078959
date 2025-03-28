@@ -1,5 +1,7 @@
 document.addEventListener('DOMContentLoaded', function() {
     const form = document.getElementById('trainForm');
+    const urlParams = new URLSearchParams(window.location.search);
+    const trainId = urlParams.get('id');
     
     // Fonction pour ajouter une gare
     window.addStop = function() {
@@ -20,28 +22,53 @@ document.addEventListener('DOMContentLoaded', function() {
         button.parentElement.remove();
     };
 
+    // Charger les données du train si en mode édition
+    if (trainId) {
+        fetch(`api/get_train.php?id=${trainId}`)
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    const train = data.train;
+                    document.getElementById('trainNumber').value = train.train_number;
+                    document.getElementById('departureStation').value = train.departure_station;
+                    document.getElementById('arrivalStation').value = train.arrival_station;
+                    document.getElementById('departureTime').value = train.departure_time;
+                    document.getElementById('arrivalTime').value = train.arrival_time;
+                    document.getElementById('platform').value = train.platform;
+                    
+                    // Remplir les gares
+                    const stopsContainer = document.getElementById('stopsContainer');
+                    stopsContainer.innerHTML = '';
+                    data.stops.forEach(stop => {
+                        addStop();
+                        const inputs = stopsContainer.querySelectorAll('input');
+                        inputs[inputs.length - 1].value = stop;
+                    });
+                    
+                    // Remplir les jours
+                    data.days.forEach(day => {
+                        const checkbox = document.querySelector(`input[name="days"][value="${day}"]`);
+                        if (checkbox) checkbox.checked = true;
+                    });
+                }
+            });
+    }
+
     // Gestion de la soumission du formulaire
     form.addEventListener('submit', function(e) {
         e.preventDefault();
         
         // Récupération des données
-            const status = document.getElementById('status').value;
-            const delay = status === 'Retard' ? document.getElementById('delay').value : 0;
-            const reason = document.getElementById('reason').value;
-
-            const trainData = {
-                train_number: document.getElementById('trainNumber').value,
-                departure_station: document.getElementById('departureStation').value,
-                arrival_station: document.getElementById('arrivalStation').value,
-                departure_time: document.getElementById('departureTime').value,
-                arrival_time: document.getElementById('arrivalTime').value,
-                platform: document.getElementById('platform').value,
-                status: status,
-                delay: delay,
-                reason: reason,
-                stops: Array.from(document.querySelectorAll('#stopsContainer input')).map(input => input.value),
-                days: Array.from(document.querySelectorAll('input[name="days"]:checked')).map(checkbox => parseInt(checkbox.value))
-            };
+        const trainData = {
+            train_number: document.getElementById('trainNumber').value,
+            departure_station: document.getElementById('departureStation').value,
+            arrival_station: document.getElementById('arrivalStation').value,
+            departure_time: document.getElementById('departureTime').value,
+            arrival_time: document.getElementById('arrivalTime').value,
+            platform: document.getElementById('platform').value,
+            stops: Array.from(document.querySelectorAll('#stopsContainer input')).map(input => input.value),
+            days: Array.from(document.querySelectorAll('input[name="days"]:checked')).map(checkbox => parseInt(checkbox.value))
+        };
 
         // Validation des données
         if (trainData.stops.some(stop => !stop.trim())) {
@@ -55,58 +82,39 @@ document.addEventListener('DOMContentLoaded', function() {
         }
 
         // Envoi à l'API
-        fetch('api/add_train.php', {
+        const apiUrl = trainId ? 'api/update_train.php' : 'api/add_train.php';
+        if (trainId) trainData.train_id = trainId;
+        
+        fetch(apiUrl, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
             },
             body: JSON.stringify(trainData)
         })
-        .then(response => {
-            if (!response.ok) {
-                return response.json().then(err => { throw err; });
-            }
-            return response.json();
-        })
+        .then(response => response.json())
         .then(data => {
-            if (!data.success) throw data;
-            
-            // Afficher un message de succès avec les détails
-            const successMsg = `Train ${data.train_id} enregistré avec succès!\n` +
-                             `Numéro: ${data.train_number}\n` +
-                             `Parcours: ${data.departure_station} → ${data.arrival_station}`;
-            
-            alert(successMsg);
-            form.reset();
-            document.getElementById('stopsContainer').innerHTML = '';
-            addStop(); // Réinitialiser avec une gare vide
-            
-            // Actualiser l'affichage des horaires
-            if (typeof refreshSchedules === 'function') {
-                refreshSchedules();
+            if (data.success) {
+                alert(trainId ? 'Train mis à jour avec succès!' : 'Train enregistré avec succès!');
+                if (!trainId) {
+                    form.reset();
+                    document.getElementById('stopsContainer').innerHTML = '';
+                    addStop();
+                }
+            } else {
+                alert('Erreur: ' + (data.error || 'Erreur inconnue'));
             }
         })
         .catch(error => {
-            console.error('Erreur détaillée:', error);
-            
-            // Message d'erreur détaillé
-            let errorMsg = 'Erreur lors de l\'enregistrement:\n';
-            errorMsg += error.error || error.message || 'Erreur inconnue';
-            
-            if (error.code) {
-                errorMsg += `\nCode d'erreur: ${error.code}`;
-            }
-            
-            if (error.trace) {
-                console.debug('Stack trace:', error.trace);
-            }
-            
-            alert(errorMsg);
+            console.error('Error:', error);
+            alert('Erreur lors de l\'envoi des données');
         });
     });
 
-    // Ajouter une première gare par défaut
-    addStop();
+    // Ajouter une première gare par défaut si création
+    if (!trainId) {
+        addStop();
+    }
 });
 
 // Configuration Tailwind
