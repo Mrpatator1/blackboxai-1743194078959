@@ -44,7 +44,12 @@ document.addEventListener('DOMContentLoaded', async function() {
             
             row.innerHTML = `
                 <td class="px-6 py-4 whitespace-nowrap">
-                    <div class="font-medium">${schedule.train}</div>
+                    <div class="font-medium">
+                        ${schedule.train}
+                        <a href="admin.html?id=${schedule.id}" class="ml-2 text-blue-500 hover:text-blue-700" title="Modifier">
+                            <i class="fas fa-edit"></i>
+                        </a>
+                    </div>
                     <div class="text-xs text-gray-500 mt-1">
                         <i class="fas fa-map-marker-alt mr-1"></i>
                         ${schedule.stops.join(' → ')}
