@@ -1,4 +1,19 @@
-document.addEventListener('DOMContentLoaded', function() {
+async function fetchSchedules() {
+    try {
+        const response = await fetch('api/get_trains.php');
+        if (!response.ok) throw new Error('Erreur réseau');
+        const data = await response.json();
+        return data.map(train => ({
+            ...train,
+            delay: train.status.includes('Retard') ? parseInt(train.status.match(/\d+/)[0]) : 0
+        }));
+    } catch (error) {
+        console.error('Erreur:', error);
+        return trainData.schedules; // Fallback aux données mockées
+    }
+}
+
+document.addEventListener('DOMContentLoaded', async function() {
     // Initialisation des selects de gares
     const departureSelect = document.getElementById('departure');
     const arrivalSelect = document.getElementById('arrival');
@@ -77,8 +92,20 @@ document.addEventListener('DOMContentLoaded', function() {
     // Écouteurs d'événements
     searchBtn.addEventListener('click', filterSchedules);
     
-    // Affichage initial
-    displaySchedules();
+    // Chargement initial
+    try {
+        const schedules = await fetchSchedules();
+        displaySchedules(schedules);
+        
+        // Mise à jour périodique
+        setInterval(async () => {
+            const updated = await fetchSchedules();
+            displaySchedules(updated);
+        }, 300000); // 5 minutes
+    } catch (error) {
+        console.error("Erreur:", error);
+        displaySchedules(trainData.schedules); // Fallback
+    }
 });
 
 // Configuration de Tailwind pour la couleur SNCF
