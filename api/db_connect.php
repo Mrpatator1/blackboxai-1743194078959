@@ -1,8 +1,8 @@
 <?php
-$host = 'localhost';
+$host = '127.0.0.1'; // Utiliser 127.0.0.1 au lieu de localhost pour éviter les problèmes de résolution DNS
 $db   = 'ter_bourgogne_franche_comte';
 $user = 'root';
-$pass = '';
+$pass = 'password'; // Remplacer par votre mot de passe MySQL
 $charset = 'utf8mb4';
 
 $dsn = "mysql:host=$host;dbname=$db;charset=$charset";
