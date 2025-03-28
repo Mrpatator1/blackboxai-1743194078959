@@ -25,16 +25,23 @@ document.addEventListener('DOMContentLoaded', function() {
         e.preventDefault();
         
         // Récupération des données
-        const trainData = {
-            train_number: document.getElementById('trainNumber').value,
-            departure_station: document.getElementById('departureStation').value,
-            arrival_station: document.getElementById('arrivalStation').value,
-            departure_time: document.getElementById('departureTime').value,
-            arrival_time: document.getElementById('arrivalTime').value,
-            platform: document.getElementById('platform').value,
-            stops: Array.from(document.querySelectorAll('#stopsContainer input')).map(input => input.value),
-            days: Array.from(document.querySelectorAll('input[name="days"]:checked')).map(checkbox => parseInt(checkbox.value))
-        };
+            const status = document.getElementById('status').value;
+            const delay = status === 'Retard' ? document.getElementById('delay').value : 0;
+            const reason = document.getElementById('reason').value;
+
+            const trainData = {
+                train_number: document.getElementById('trainNumber').value,
+                departure_station: document.getElementById('departureStation').value,
+                arrival_station: document.getElementById('arrivalStation').value,
+                departure_time: document.getElementById('departureTime').value,
+                arrival_time: document.getElementById('arrivalTime').value,
+                platform: document.getElementById('platform').value,
+                status: status,
+                delay: delay,
+                reason: reason,
+                stops: Array.from(document.querySelectorAll('#stopsContainer input')).map(input => input.value),
+                days: Array.from(document.querySelectorAll('input[name="days"]:checked')).map(checkbox => parseInt(checkbox.value))
+            };
 
         // Validation des données
         if (trainData.stops.some(stop => !stop.trim())) {
@@ -55,20 +62,46 @@ document.addEventListener('DOMContentLoaded', function() {
             },
             body: JSON.stringify(trainData)
         })
-        .then(response => response.json())
+        .then(response => {
+            if (!response.ok) {
+                return response.json().then(err => { throw err; });
+            }
+            return response.json();
+        })
         .then(data => {
-            if (data.success) {
-                alert('Train enregistré avec succès ! ID: ' + data.train_id);
-                form.reset();
-                document.getElementById('stopsContainer').innerHTML = '';
-                addStop(); // Réinitialiser avec une gare vide
-            } else {
-                alert('Erreur: ' + (data.error || 'Erreur inconnue'));
+            if (!data.success) throw data;
+            
+            // Afficher un message de succès avec les détails
+            const successMsg = `Train ${data.train_id} enregistré avec succès!\n` +
+                             `Numéro: ${data.train_number}\n` +
+                             `Parcours: ${data.departure_station} → ${data.arrival_station}`;
+            
+            alert(successMsg);
+            form.reset();
+            document.getElementById('stopsContainer').innerHTML = '';
+            addStop(); // Réinitialiser avec une gare vide
+            
+            // Actualiser l'affichage des horaires
+            if (typeof refreshSchedules === 'function') {
+                refreshSchedules();
             }
         })
         .catch(error => {
-            console.error('Error:', error);
-            alert('Erreur lors de l\'envoi des données');
+            console.error('Erreur détaillée:', error);
+            
+            // Message d'erreur détaillé
+            let errorMsg = 'Erreur lors de l\'enregistrement:\n';
+            errorMsg += error.error || error.message || 'Erreur inconnue';
+            
+            if (error.code) {
+                errorMsg += `\nCode d'erreur: ${error.code}`;
+            }
+            
+            if (error.trace) {
+                console.debug('Stack trace:', error.trace);
+            }
+            
+            alert(errorMsg);
         });
     });
 
